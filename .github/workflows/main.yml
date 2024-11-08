@@ -27,6 +27,8 @@ jobs:
           cache-cleanup: never
           cache-overwrite-existing: true
           cache-read-only: ${{ github.ref != 'refs/heads/main' }}
+      - name: Upgrade YarnLock Kotlin
+        run: ./gradlew kotlinUpgradeYarnLock
 
       - name: Build JS Browser Distribution
         run: ./gradlew jsBrowserDistribution

@@ -116,8 +116,8 @@ kotlin {
             implementation(libs.sqlDelight.driver.js)
 
             // sqlDelight for local database
-            implementation("app.cash.sqldelight:web-worker-driver:2.0.1")
-            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.1"))
+            implementation("app.cash.sqldelight:web-worker-driver:2.0.2")
+            implementation(npm("@cashapp/sqldelight-sqljs-worker", "2.0.2"))
             implementation(npm("sql.js", "1.8.0"))
             implementation(npm("copy-webpack-plugin", "11.0.0"))
             implementation(npm("@sqlite.org/sqlite-wasm", "3.43.2-build1"))
