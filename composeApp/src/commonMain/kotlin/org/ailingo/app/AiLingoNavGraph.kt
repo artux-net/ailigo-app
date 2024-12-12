@@ -3,6 +3,7 @@ package org.ailingo.app
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -26,6 +27,7 @@ fun AiLingoNavGraph(
     navController: NavHostController = rememberNavController()
 ) {
     val loginViewModel: LoginViewModel = koinViewModel<LoginViewModel>()
+    val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
     val registerViewModel: RegisterViewModel = koinViewModel<RegisterViewModel>()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -35,6 +37,7 @@ fun AiLingoNavGraph(
         DictionaryPage::class,
         TopicsPage::class,
         ProfilePage::class,
+        ProfileUpdatePage::class,
     )
 
     val isTopAppBarWithProfileVisible = currentDestination?.let { dest ->
@@ -65,11 +68,13 @@ fun AiLingoNavGraph(
             isTopAppBarWithProfileVisible = isTopAppBarWithProfileVisible,
             loginViewModel = loginViewModel,
             currentDestination = currentDestination,
-            windowInfo = windowInfo
+            windowInfo = windowInfo,
+            loginState = loginState
         ) { innerPadding ->
             AppNavHost(
                 navController = navController,
                 loginViewModel = loginViewModel,
+                loginState = loginState,
                 voiceToTextParser = voiceToTextParser,
                 registerViewModel = registerViewModel,
                 innerPadding = innerPadding,
@@ -82,12 +87,13 @@ fun AiLingoNavGraph(
             currentDestination = currentDestination,
             isStandardCenterTopAppBarVisible = isStandardCenterTopAppBarVisible,
             isTopAppBarWithProfileVisible = isTopAppBarWithProfileVisible,
-            loginViewModel = loginViewModel,
+            loginState = loginState,
             windowInfo = windowInfo
         ) { innerPadding ->
             AppNavHost(
                 navController = navController,
                 loginViewModel = loginViewModel,
+                loginState = loginState,
                 voiceToTextParser = voiceToTextParser,
                 registerViewModel = registerViewModel,
                 innerPadding = innerPadding,

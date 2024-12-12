@@ -5,15 +5,15 @@ import app.cash.sqldelight.coroutines.mapToList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import org.ailingo.app.database.HistoryDictionaryDatabase
+import org.ailingo.app.AppDatabase
 import org.ailingo.app.features.dictionary.history.domain.DictionaryRepository
 import org.ailingo.app.features.dictionary.history.domain.HistoryDictionary
 
 class DictionaryRepositoryImpl(
-    db: HistoryDictionaryDatabase
+    db: AppDatabase
 ) : DictionaryRepository {
 
-    private val queries = db.historyDictionaryDatabaseQueries
+    private val queries = db.historyDictionaryQueries
 
     override fun getDictionaryHistory(): Flow<List<HistoryDictionary>> {
         val response = queries

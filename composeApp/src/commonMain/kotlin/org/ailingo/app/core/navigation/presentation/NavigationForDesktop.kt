@@ -27,12 +27,14 @@ import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
 import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
+import org.ailingo.app.ProfileUpdatePage
 import org.ailingo.app.TopicsPage
 import org.ailingo.app.core.presentation.model.DrawerItems
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
+import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
@@ -43,6 +45,7 @@ fun NavigationForDesktop(
     isStandardCenterTopAppBarVisible: Boolean,
     isTopAppBarWithProfileVisible: Boolean,
     loginViewModel: LoginViewModel,
+    loginState: LoginUiState,
     currentDestination: NavDestination?,
     windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit
@@ -52,6 +55,7 @@ fun NavigationForDesktop(
         TopicsPage::class,
         DictionaryPage::class,
         ProfilePage::class,
+        ProfileUpdatePage::class,
     )
 
     val isNavigationDrawerVisible = currentDestination?.let { dest ->
@@ -91,7 +95,7 @@ fun NavigationForDesktop(
         Scaffold(
             topBar = {
                 if (isTopAppBarWithProfileVisible) {
-                    TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
+                    TopAppBarWithProfile(loginState = loginState, windowInfo = windowInfo)
                 } else {
                     if (isStandardCenterTopAppBarVisible) {
                         TopAppBarCenter()

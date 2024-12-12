@@ -14,7 +14,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import org.ailingo.app.ChatPage
 import org.ailingo.app.DictionaryPage
@@ -24,7 +23,7 @@ import org.ailingo.app.core.navigation.model.BottomNavItem
 import org.ailingo.app.core.presentation.topappbar.TopAppBarCenter
 import org.ailingo.app.core.presentation.topappbar.TopAppBarWithProfile
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
-import org.ailingo.app.features.login.presentation.LoginViewModel
+import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.theme.AppTheme
 import org.jetbrains.compose.resources.stringResource
 
@@ -34,7 +33,7 @@ fun NavigationForMobile(
     currentDestination: NavDestination?,
     isStandardCenterTopAppBarVisible: Boolean,
     isTopAppBarWithProfileVisible: Boolean,
-    loginViewModel: LoginViewModel,
+    loginState: LoginUiState,
     windowInfo: WindowInfo,
     contentNavHost: @Composable (padding: PaddingValues) -> Unit,
 ) {
@@ -82,7 +81,7 @@ fun NavigationForMobile(
         Scaffold(
             topBar = {
                 if (isTopAppBarWithProfileVisible) {
-                    TopAppBarWithProfile(loginViewModel = loginViewModel, windowInfo = windowInfo)
+                    TopAppBarWithProfile(loginState = loginState, windowInfo = windowInfo)
                 } else {
                     if (isStandardCenterTopAppBarVisible) {
                         TopAppBarCenter()
@@ -100,11 +99,11 @@ fun NavigationForMobile(
                                 },
                                 onClick = {
                                     navController.navigate(item.route) {
-                                        navController.graph.findStartDestination().route?.let {
-                                            popUpTo(it) {
-                                                saveState = true
-                                            }
-                                        }
+//                                        navController.graph.findStartDestination().route?.let {
+//                                            popUpTo(it) {
+//                                                saveState = true
+//                                            }
+//                                        }
                                         launchSingleTop = true
                                         restoreState = true
                                     }

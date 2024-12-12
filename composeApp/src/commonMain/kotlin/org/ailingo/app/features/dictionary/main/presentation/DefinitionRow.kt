@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.Favorite
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalMinimumInteractiveComponentSize
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import compose.icons.FeatherIcons
@@ -25,9 +28,13 @@ import org.ailingo.app.features.dictionary.main.data.model.Def
 import org.ailingo.app.features.dictionary.main.presentation.utils.getPartOfSpeechLabel
 import org.ailingo.app.playSound
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DefinitionRowInfo(definition: Def, responseForExamples: List<WordInfoItem>?) {
+fun DefinitionRowInfo(
+    definition: Def,
+    responseForExamples: List<WordInfoItem>?,
+    favoriteDictionaryState: List<String>,
+    dictionaryViewModel: DictionaryViewModel
+) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -61,6 +68,23 @@ fun DefinitionRowInfo(definition: Def, responseForExamples: List<WordInfoItem>?)
                         contentDescription = null
                     )
                 }
+            }
+        }
+        if (favoriteDictionaryState.contains(definition.text)) {
+            IconButton(onClick = {
+                dictionaryViewModel.onEvent(DictionaryScreenEvents.RemoveFromFavorites(
+                    definition.text
+                ))
+            }) {
+                Icon(imageVector = Icons.Filled.Favorite, contentDescription = null, tint = Color.Red)
+            }
+        } else {
+            IconButton(onClick = {
+                dictionaryViewModel.onEvent(DictionaryScreenEvents.AddToFavorites(
+                    definition.text
+                ))
+            }) {
+                Icon(imageVector = Icons.Outlined.Favorite, contentDescription = null)
             }
         }
     }

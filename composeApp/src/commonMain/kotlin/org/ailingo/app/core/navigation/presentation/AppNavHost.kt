@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -14,6 +13,7 @@ import org.ailingo.app.DictionaryPage
 import org.ailingo.app.GetStartedPage
 import org.ailingo.app.LoginPage
 import org.ailingo.app.ProfilePage
+import org.ailingo.app.ProfileUpdatePage
 import org.ailingo.app.RegisterPage
 import org.ailingo.app.ResetPasswordPage
 import org.ailingo.app.TopicsPage
@@ -26,13 +26,17 @@ import org.ailingo.app.features.dictionary.main.presentation.DictionaryViewModel
 import org.ailingo.app.features.introduction.presentation.GetStartedScreen
 import org.ailingo.app.features.login.presentation.LoginScreen
 import org.ailingo.app.features.login.presentation.LoginScreenEvent
+import org.ailingo.app.features.login.presentation.LoginUiState
 import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.features.profile.presentation.ProfileScreen
+import org.ailingo.app.features.profileupdate.presentation.ProfileUpdateScreen
+import org.ailingo.app.features.profileupdate.presentation.ProfileUpdateViewModel
 import org.ailingo.app.features.registration.presentation.RegisterScreen
 import org.ailingo.app.features.registration.presentation.RegisterViewModel
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarScreen
 import org.ailingo.app.features.registration.presentation.uploadavatar.UploadAvatarViewModel
 import org.ailingo.app.features.resetpass.presentation.ResetPasswordScreen
+import org.ailingo.app.features.topics.presentation.TopicViewModel
 import org.ailingo.app.features.topics.presentation.TopicsScreen
 import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.annotation.KoinExperimentalAPI
@@ -42,6 +46,7 @@ import org.koin.core.annotation.KoinExperimentalAPI
 fun AppNavHost(
     navController: NavHostController,
     loginViewModel: LoginViewModel,
+    loginState: LoginUiState,
     voiceToTextParser: VoiceToTextParser,
     registerViewModel: RegisterViewModel,
     innerPadding: PaddingValues,
@@ -64,7 +69,8 @@ fun AppNavHost(
                 onNavigateToRegisterScreen = {
                     navController.navigate(RegisterPage)
                 },
-                loginViewModel = loginViewModel
+                loginViewModel = loginViewModel,
+                loginState = loginState
             )
         }
         composable<ChatPage> {
@@ -123,19 +129,17 @@ fun AppNavHost(
                     navController.navigate(RegisterPage)
                 },
                 onNavigateToChatScreen = {
-                    loginViewModel.onEvent(
-                        LoginScreenEvent.OnLoginUser(
-                            args.login,
-                            args.password
-                        )
-                    )
-                    navController.navigate(ChatPage)
+                    loginViewModel.checkUserAuth()
+                    if (loginState is LoginUiState.Success) {
+                        navController.navigate(ChatPage)
+                    }
                 },
                 uploadAvatarViewModel = uploadAvatarViewModel
             )
         }
         composable<TopicsPage> {
-            TopicsScreen(windowInfo = windowInfo)
+            val topicsViewModel: TopicViewModel = koinViewModel<TopicViewModel>()
+            TopicsScreen(windowInfo = windowInfo, topicsViewModel)
         }
         composable<DictionaryPage> {
             val dictionaryViewModel: DictionaryViewModel = koinViewModel<DictionaryViewModel>()
@@ -143,15 +147,37 @@ fun AppNavHost(
         }
         composable<ProfilePage> {
             ProfileScreen(
-                loginUiState = loginViewModel.loginState.collectAsStateWithLifecycle().value,
+                loginUiState = loginState,
                 windowInfo = windowInfo,
                 onExit = {
                     loginViewModel.onEvent(LoginScreenEvent.OnBackToEmptyState)
                     navController.navigate(LoginPage) {
                         popUpTo(0)
                     }
+                },
+                onNavigateProfileChange = { name, email, avatar ->
+                    navController.navigate(ProfileUpdatePage(
+                        name, email, avatar
+                    ))
                 }
             )
+        }
+        composable<ProfileUpdatePage> { backStack->
+            val profileUpdateViewModel = koinViewModel<ProfileUpdateViewModel>()
+            if (loginState is LoginUiState.Success) {
+                ProfileUpdateScreen(
+                    profileUpdateViewModel = profileUpdateViewModel,
+                    onProfileUpdate = {
+                        loginViewModel.checkUserAuth()
+                    },
+                    onNavigateProfileScreen = {
+                        navController.navigate(ProfilePage)
+                    },
+                    name = loginState.user.name,
+                    email = loginState.user.email,
+                    avatar = loginState.user.avatar
+                )
+            }
         }
     }
 }

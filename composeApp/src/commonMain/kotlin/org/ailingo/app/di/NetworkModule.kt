@@ -11,6 +11,7 @@ import io.ktor.client.network.sockets.SocketTimeoutException
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
@@ -23,7 +24,9 @@ val networkModule = module {
             install(ContentNegotiation) {
                 json(Json { ignoreUnknownKeys = true })
             }
-            install(Logging)
+            install(Logging) {
+                level = LogLevel.ALL
+            }
             install(HttpTimeout) {
                 requestTimeoutMillis = 15000
                 socketTimeoutMillis = 15000
@@ -39,7 +42,7 @@ val networkModule = module {
                     is HttpRequestTimeoutException -> getString(Res.string.request_timeout)
                     is ConnectTimeoutException -> getString(Res.string.could_not_connect)
                     is SocketTimeoutException -> getString(Res.string.connection_timeout)
-                    else -> getString(Res.string.unexpected_error, throwable.message ?: "")
+                    else -> getString(Res.string.unexpected_error, throwable.message.toString() ?: "")
                 }
             }
         }

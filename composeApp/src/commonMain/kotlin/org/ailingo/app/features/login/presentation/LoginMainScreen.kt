@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -20,6 +19,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.unit.dp
+import org.ailingo.app.core.utils.presentation.LoadingScreen
 
 @Composable
 fun LoginMainScreen(
@@ -49,7 +49,7 @@ fun LoginMainScreen(
         modifier = Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState())
     ) {
         if (isLoading.value) {
-            CircularProgressIndicator()
+            LoadingScreen()
         } else {
             LoginWelcomeMessage()
             Spacer(modifier = Modifier.height(8.dp))

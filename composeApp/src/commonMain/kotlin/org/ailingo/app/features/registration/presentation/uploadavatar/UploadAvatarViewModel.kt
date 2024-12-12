@@ -22,6 +22,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.utils.io.InternalAPI
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,13 +30,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import org.ailingo.app.di.NetworkErrorMapper
+import org.ailingo.app.features.auth.domain.TokenRepository
+import org.ailingo.app.features.login.data.LoginResponse
 import org.ailingo.app.features.registration.data.image.UploadImageResponse
-import org.ailingo.app.features.registration.data.model.SuccessRegister
+import org.ailingo.app.features.registration.data.model.RegisterResponse
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 
 class UploadAvatarViewModel (
     private val httpClient: HttpClient,
-    private val errorMapper: NetworkErrorMapper
+    private val errorMapper: NetworkErrorMapper,
+    private val tokenRepositoryDeferred: Deferred<TokenRepository>
 ): ViewModel() {
     fun onEvent(event: UploadAvatarEvent) {
         when (event) {
@@ -68,22 +72,21 @@ class UploadAvatarViewModel (
                     header(HttpHeaders.ContentType, ContentType.Application.Json)
                     setBody(user)
                 }
-                _registerState.value = when {
-                    response.status.isSuccess() -> {
-                        val body = response.body<SuccessRegister>()
-                        if (body.success) {
-                            RegisterApiState.Success(
-                                body.success,
-                                body.code,
-                                body.description,
-                                body.failure
-                            )
-                        } else {
-                            RegisterApiState.Error(body.description)
-                        }
-                    }
-                    else -> RegisterApiState.Error("Request failed with $response")
+
+                if (response.status.isSuccess()) {
+                    val registerResponse = response.body<RegisterResponse>()
+                    tokenRepositoryDeferred.await().saveTokens(
+                        loginResponse = LoginResponse(
+                            token = registerResponse.token,
+                            refreshToken = registerResponse.refreshToken,
+                            user = registerResponse.user
+                        ),
+                    )
+                    _registerState.value = RegisterApiState.Success(registerResponse)
+                } else {
+                    _registerState.value = RegisterApiState.Error(response.status.value.toString())
                 }
+
             } catch (e: Throwable) {
                 _registerState.value = RegisterApiState.Error(errorMapper.mapError(e))
             }

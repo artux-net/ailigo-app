@@ -1,9 +1,9 @@
-package org.ailingo.app.features.registration.data.model
+package org.ailingo.app.features.profileupdate.data
 
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SuccessRegister(
+data class UpdateProfileResponse(
     val success: Boolean,
     val code: Int,
     val description: String,

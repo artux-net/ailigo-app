@@ -11,24 +11,27 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.request.header
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.isSuccess
-import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.serialization.json.Json
-import org.ailingo.app.core.utils.auth.basicAuthHeader
+import org.ailingo.app.di.NetworkErrorMapper
+import org.ailingo.app.features.auth.domain.TokenRepository
 import org.ailingo.app.features.chat.data.model.Message
 import org.jetbrains.compose.resources.getString
 import kotlin.random.Random
 
-class ChatViewModel : ViewModel() {
+class ChatViewModel(
+    private val httpClient: HttpClient,
+    private val errorMapper: NetworkErrorMapper,
+    private val tokenRepositoryDeferred: Deferred<TokenRepository>
+) : ViewModel() {
     private val _chatState = mutableStateListOf<Message>()
     val chatState: List<Message> = _chatState
 
@@ -55,21 +58,18 @@ class ChatViewModel : ViewModel() {
                 _chatState.add(Message(event.message, isSentByUser = true))
                 _chatState.add(Message("Waiting for response...", isSentByUser = false))
                 viewModelScope.launch {
-                    _isActiveJob.emit(true)
-                    val localHttpClient = HttpClient {
-                        install(ContentNegotiation) {
-                            json(
-                                Json {
-                                    ignoreUnknownKeys = true
-                                }
-                            )
-                        }
-                    }
                     try {
-                        val response = localHttpClient.post("$BASE_URL$API_ENDPOINT") {
-                            header(HttpHeaders.Authorization, basicAuthHeader(event.username, event.password))
+                        val token = tokenRepositoryDeferred.await().getTokens()?.token
+                        val response = httpClient.post("$BASE_URL$API_ENDPOINT") {
+                            header(HttpHeaders.Authorization, "Bearer $token")
                             header(HttpHeaders.ContentType, ContentType.Application.Json)
                             setBody(event.message)
+                        }
+                        if (token == null) {
+                            _chatState.removeAt(_chatState.size - 1)
+                            _chatState.add(Message("Please login", isSentByUser = false))
+                            _isActiveJob.emit(false)
+                            return@launch
                         }
                         when {
                             response.status.isSuccess() -> {
@@ -90,10 +90,8 @@ class ChatViewModel : ViewModel() {
                         }
                     } catch (e: Exception) {
                         _chatState.removeAt(_chatState.size - 1)
-                        _chatState.add(Message("Exception: ${e.message}", isSentByUser = false))
+                        _chatState.add(Message(errorMapper.mapError(e), isSentByUser = false))
                         _isActiveJob.emit(false)
-                    } finally {
-                        localHttpClient.close()
                     }
                 }
             }

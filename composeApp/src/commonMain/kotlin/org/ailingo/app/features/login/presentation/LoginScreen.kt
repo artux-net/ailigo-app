@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.delay
 import org.ailingo.app.core.utils.presentation.ErrorScreen
 import org.ailingo.app.core.utils.presentation.LoadingScreen
@@ -19,10 +18,9 @@ fun LoginScreen(
     onNavigateToChatScreen: () -> Unit,
     onNavigateToRegisterScreen: () -> Unit,
     onNavigateToResetPasswordScreen: () -> Unit,
-    loginViewModel: LoginViewModel
+    loginViewModel: LoginViewModel,
+    loginState: LoginUiState
 ) {
-    val loginState = loginViewModel.loginState.collectAsStateWithLifecycle().value
-
     var passwordVisible by rememberSaveable {
         mutableStateOf(false)
     }
@@ -32,13 +30,13 @@ fun LoginScreen(
 
     LaunchedEffect(isLoading.value) {
         if (isLoading.value) {
-            delay(500L) // just for cute ui
+            delay(500L)
             isLoading.value = false
         }
     }
 
     when (loginState) {
-        LoginUiState.Empty -> {
+        LoginUiState.Unauthenticated -> {
             LoginMainScreen(
                 onLoginUser = {
                     loginViewModel.onEvent(

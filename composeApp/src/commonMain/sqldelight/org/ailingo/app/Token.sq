@@ -1,0 +1,25 @@
+CREATE TABLE IF NOT EXISTS Token (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    token TEXT NOT NULL UNIQUE,
+    refresh_token TEXT NOT NULL UNIQUE
+);
+
+insertTokens:
+INSERT INTO Token (token, refresh_token) VALUES (:token, :refreshToken);
+
+getTokens:
+SELECT * FROM Token;
+
+updateTokens:
+UPDATE Token
+SET token = :newToken, refresh_token = :newRefreshToken
+WHERE refresh_token = :oldRefreshToken;
+
+deleteToken:
+DELETE FROM Token WHERE token = :token;
+
+deleteRefreshToken:
+DELETE FROM Token WHERE refresh_token = :refreshToken;
+
+deleteTokens:
+DELETE FROM Token;

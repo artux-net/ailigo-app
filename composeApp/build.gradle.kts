@@ -223,6 +223,7 @@ buildConfig {
 //    FOR TESTING
 //    buildConfigField("BASE_URL", "http://localhost:8080/ailingo")
     buildConfigField("API_ENDPOINT_USER", "/api/v1/user")
+    buildConfigField("API_ENDPOINT_TOPICS", "/api/v1/topics")
     buildConfigField(
         "API_KEY_DICTIONARY",
         "dict.1.1.20231102T140345Z.9979700cf66f91d0.b210308b827953080f07e8f2e12779e2486d2695"
@@ -236,8 +237,8 @@ buildConfig {
 
 sqldelight {
     databases {
-        create("HistoryDictionaryDatabase") {
-            packageName.set("org.ailingo.app.database")
+        create("AppDatabase") {
+            packageName.set("org.ailingo.app")
             generateAsync.set(true)
         }
     }

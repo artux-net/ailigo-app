@@ -29,6 +29,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.ailingo.app.core.utils.presentation.ErrorScreen
 import org.ailingo.app.core.utils.presentation.LoadingScreen
 import org.ailingo.app.features.dictionary.history.domain.HistoryDictionaryUiState
@@ -39,8 +40,10 @@ import org.jetbrains.compose.resources.stringResource
 fun DictionaryScreen(
     dictionaryViewModel: DictionaryViewModel
 ) {
-    val uiState = dictionaryViewModel.uiState.collectAsState()
-    val historyViewModelState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
+    val dictionaryState = dictionaryViewModel.dictionaryUiState.collectAsState()
+    val historyDictionaryState = dictionaryViewModel.historyOfDictionaryState.collectAsState()
+    val favoriteDictionaryState =
+        dictionaryViewModel.favoriteWords.collectAsStateWithLifecycle().value
     val textFieldValue = rememberSaveable { mutableStateOf("") }
     val active = remember {
         mutableStateOf(false)
@@ -68,18 +71,20 @@ fun DictionaryScreen(
                     )
                 }
             }
-            if (uiState.value is DictionaryUiState.Empty) {
-                when (val historyState = historyViewModelState.value) {
+            if (dictionaryState.value is DictionaryUiState.Empty) {
+                when (val historyState = historyDictionaryState.value) {
                     is HistoryDictionaryUiState.Error -> {
                         item {
-                            ErrorScreen(errorMessage =  historyState.message)
+                            ErrorScreen(errorMessage = historyState.message)
                         }
                     }
+
                     HistoryDictionaryUiState.Loading -> {
                         item {
                             LoadingScreen()
                         }
                     }
+
                     is HistoryDictionaryUiState.Success -> {
                         items(historyState.history.reversed()) {
                             Row(
@@ -107,10 +112,10 @@ fun DictionaryScreen(
                 }
             }
 
-            if (uiState.value is DictionaryUiState.Success) {
-                val response = (uiState.value as DictionaryUiState.Success).response
+            if (dictionaryState.value is DictionaryUiState.Success) {
+                val response = (dictionaryState.value as DictionaryUiState.Success).response
                 val responseForExamples =
-                    (uiState.value as DictionaryUiState.Success).responseExample
+                    (dictionaryState.value as DictionaryUiState.Success).responseExample
                 val listOfExamples = responseForExamples?.flatMap {
                     it.meanings.flatMap { meaning ->
                         meaning.definitions.mapNotNull { def ->
@@ -127,7 +132,7 @@ fun DictionaryScreen(
                 }
                 if (response.def?.isNotEmpty() == true) {
                     items(response.def) { definition ->
-                        DefinitionRowInfo(definition, responseForExamples)
+                        DefinitionRowInfo(definition, responseForExamples, favoriteDictionaryState, dictionaryViewModel)
                     }
                     item {
                         if (listOfExamples?.isNotEmpty() == true) {
@@ -161,9 +166,9 @@ fun DictionaryScreen(
             }
         }
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            when (val state = uiState.value) {
+            when (val state = dictionaryState.value) {
                 DictionaryUiState.Empty -> {
-                    if (historyViewModelState.value is HistoryDictionaryUiState.Success && (historyViewModelState.value as HistoryDictionaryUiState.Success).history.isEmpty()) {
+                    if (historyDictionaryState.value is HistoryDictionaryUiState.Success && (historyDictionaryState.value as HistoryDictionaryUiState.Success).history.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize()
                                 .padding(top = searchBarHeight.value.dp),

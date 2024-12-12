@@ -4,7 +4,7 @@ import app.cash.sqldelight.db.QueryResult
 import app.cash.sqldelight.db.SqlDriver
 import app.cash.sqldelight.db.SqlSchema
 import app.cash.sqldelight.driver.worker.WebWorkerDriver
-import org.ailingo.app.database.HistoryDictionaryDatabase
+import org.ailingo.app.AppDatabase
 import org.w3c.dom.Worker
 
 actual class DatabaseDriverFactory {
@@ -13,6 +13,6 @@ actual class DatabaseDriverFactory {
             Worker(
                 js("""new URL("sqlite.worker.js", import.meta.url)""")
             )
-        ).also { HistoryDictionaryDatabase.Schema.create(it).await() }
+        ).also { AppDatabase.Schema.create(it).await() }
     }
 }

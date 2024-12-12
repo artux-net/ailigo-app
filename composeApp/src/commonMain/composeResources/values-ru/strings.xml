@@ -59,9 +59,9 @@
     <string name="request_timeout">Время ожидания запроса истекло. Пожалуйста, проверьте подключение к интернету или попробуйте позже.</string>
     <string name="could_not_connect">Не удалось подключиться к серверу. Пожалуйста, проверьте подключение к интернету.</string>
     <string name="connection_timeout">Время ожидания соединения истекло. Пожалуйста, проверьте подключение к интернету или попробуйте позже.</string>
-    <string name="unexpected_error">Произошла непредвиденная ошибка: %s</string>
+    <string name="unexpected_error">Произошла непредвиденная ошибка</string>
     <string name="wrong_login_or_password">Неверный логин или пароль</string>
-    <string name="request_failed">Ошибка запроса с кодом %d</string>
+    <string name="request_failed">Ошибка запроса с кодом</string>
     <string name="login_must_be_between">Логин должен содержать от 4 до 16 символов</string>
     <string name="password_must_be_between">Пароль должен содержать от 8 до 24 символов</string>
     <string name="invalid_email_format">Неверный формат электронной почты</string>

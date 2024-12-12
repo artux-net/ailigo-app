@@ -1,24 +1,18 @@
 package org.ailingo.app.features.login.presentation
 
 import kotlinx.serialization.Serializable
+import org.ailingo.app.features.login.data.User
 
 @Serializable
 sealed class LoginUiState {
     @Serializable
     data class Success(
-        val id: String,
-        val login: String,
-        val name: String,
-        val email: String,
-        val avatar: String,
-        val xp: Int,
-        val coins: Int,
-        val streak: Int,
-        val registration: String,
-        val lastLoginAt: String
+        val user: User,
+        val token: String,
+        val refreshToken: String
     ) : LoginUiState()
 
     data class Error(val message: String) : LoginUiState()
     data object Loading : LoginUiState()
-    data object Empty : LoginUiState()
+    data object Unauthenticated : LoginUiState()
 }

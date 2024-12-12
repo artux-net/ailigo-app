@@ -36,3 +36,10 @@ object DictionaryPage
 
 @Serializable
 object ProfilePage
+
+@Serializable
+data class ProfileUpdatePage(
+    val name: String,
+    val email: String,
+    var avatar: String
+)

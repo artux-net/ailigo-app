@@ -24,7 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.selection.SelectionContainer
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -47,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
 import org.ailingo.app.UploadAvatarForPhone
+import org.ailingo.app.core.utils.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.util.PlatformName
 import org.ailingo.app.features.registration.data.model.UserRegistrationData
 import org.ailingo.app.getPlatformName
@@ -86,7 +86,7 @@ fun RegisterUploadAvatarEmpty(
                 uploadAvatarViewModel.onEvent(UploadAvatarEvent.OnUploadImage(base64Image!!))
             }
         }
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(modifier = Modifier.fillMaxSize().padding(16.dp), contentAlignment = Alignment.Center) {
             Column(
                 modifier = Modifier.fillMaxSize(),
                 verticalArrangement = Arrangement.Center,
@@ -148,12 +148,7 @@ fun RegisterUploadAvatarEmpty(
                                         }
 
                                         UploadImageUiState.LoadingImage -> {
-                                            Box(
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentAlignment = Alignment.Center
-                                            ) {
-                                                CircularProgressIndicator()
-                                            }
+                                            LoadingScreen()
                                         }
 
                                         is UploadImageUiState.Success -> {

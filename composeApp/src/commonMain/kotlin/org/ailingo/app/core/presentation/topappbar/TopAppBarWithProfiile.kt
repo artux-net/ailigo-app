@@ -21,7 +21,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -36,9 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.ailingo.app.core.utils.presentation.LoadingScreen
 import org.ailingo.app.core.utils.windowinfo.info.WindowInfo
 import org.ailingo.app.features.login.presentation.LoginUiState
-import org.ailingo.app.features.login.presentation.LoginViewModel
 import org.ailingo.app.theme.inversePrimaryLight
 import org.ailingo.app.theme.primaryContainerLight
 import org.jetbrains.compose.resources.painterResource
@@ -47,7 +46,7 @@ import org.jetbrains.compose.resources.painterResource
 @Composable
 fun TopAppBarWithProfile(
     modifier: Modifier = Modifier,
-    loginViewModel: LoginViewModel,
+    loginState: LoginUiState,
     windowInfo: WindowInfo
 ) {
     TopAppBar(
@@ -77,9 +76,9 @@ fun TopAppBarWithProfile(
             }
         },
         actions = {
-            when (val loginState = loginViewModel.loginState.value) {
+            when (loginState) {
                 LoginUiState.Loading -> {
-                    CircularProgressIndicator()
+                    LoadingScreen()
                 }
 
                 is LoginUiState.Success -> {
@@ -94,12 +93,12 @@ fun TopAppBarWithProfile(
                                 .padding(4.dp).padding(start = 2.dp).padding(end = 2.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            if (loginState.avatar.isNotEmpty()) {
+                            if (loginState.user.avatar.isNotEmpty()) {
                                 Box(
                                     contentAlignment = Alignment.Center
                                 ) {
                                     AsyncImage(
-                                        model = loginState.avatar,
+                                        model = loginState.user.avatar,
                                         contentDescription = "avatar",
                                         contentScale = ContentScale.Crop,
                                         modifier = Modifier
@@ -112,7 +111,7 @@ fun TopAppBarWithProfile(
                                             )
                                     )
                                     Text(
-                                        text = loginState.login.first().uppercase(),
+                                        text = loginState.user.login.first().uppercase(),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                 }
@@ -134,7 +133,7 @@ fun TopAppBarWithProfile(
                                             )
                                     )
                                     Text(
-                                        text = loginState.login.first().uppercase(),
+                                        text = loginState.user.login.first().uppercase(),
                                         style = MaterialTheme.typography.headlineSmall
                                     )
                                 }
@@ -159,7 +158,7 @@ fun TopAppBarWithProfile(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        loginState.coins.toString(),
+                                        loginState.user.coins.toString(),
                                         modifier = Modifier.align(Alignment.CenterVertically)
                                     )
                                 }
@@ -184,7 +183,7 @@ fun TopAppBarWithProfile(
                                     )
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text(
-                                        loginState.streak.toString(),
+                                        loginState.user.streak.toString(),
                                         modifier = Modifier.align(Alignment.CenterVertically)
                                     )
                                 }
